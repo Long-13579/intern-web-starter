@@ -43,6 +43,11 @@
         </div>
       </el-card>
     </div>
+
+    <!-- Headcount Trend -->
+    <el-card v-if="headcountTrend">
+      <Line :data="headcountTrend" :options="{ responsive: true, maintainAspectRatio: false }" />
+    </el-card>
   </div>
 </template>
 
@@ -71,6 +76,21 @@ const { t } = useI18n();
 
 const employees = ref<any[]>([]);
 const stats = ref({ total: 0, active: 0, inactive: 0 });
+
+const headcountTrend = computed(() => {
+  if (!employees.value.length) return null;
+  const grouped: Record<string, number> = {};
+  employees.value.forEach(emp => {
+    const month = new Date(emp.join_date).toISOString().slice(0, 7); // YYYY-MM
+    grouped[month] = (grouped[month] || 0) + 1;
+  });
+  const labels = Object.keys(grouped).sort();
+  const data = labels.map(l => grouped[l]);
+  return {
+    labels,
+    datasets: [{ label: t('Headcount_over_time'), data, borderColor: '#4f46e5', backgroundColor: '#a5b4fc' }]
+  };
+});
 
 onMounted(async () => {
   try {
