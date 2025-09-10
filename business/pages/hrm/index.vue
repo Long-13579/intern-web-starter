@@ -44,9 +44,12 @@
       </el-card>
     </div>
 
-    <!-- Headcount Trend -->
     <el-card v-if="headcountTrend">
       <Line :data="headcountTrend" :options="{ responsive: true, maintainAspectRatio: false }" />
+    </el-card>
+
+    <el-card class="mt-6" v-if="genderChart">
+      <Doughnut :data="genderChart" :options="{ responsive: true, maintainAspectRatio: false }" />
     </el-card>
   </div>
 </template>
@@ -89,6 +92,18 @@ const headcountTrend = computed(() => {
   return {
     labels,
     datasets: [{ label: t('Headcount_over_time'), data, borderColor: '#4f46e5', backgroundColor: '#a5b4fc' }]
+  };
+});
+
+const genderChart = computed(() => {
+  if (!employees.value.length) return null;
+  const grouped = employees.value.reduce((acc: any, emp) => {
+    acc[emp.gender] = (acc[emp.gender] || 0) + 1;
+    return acc;
+  }, {});
+  return {
+    labels: Object.keys(grouped),
+    datasets: [{ data: Object.values(grouped), backgroundColor: ['#60a5fa', '#f472b6', '#facc15'] }]
   };
 });
 
